@@ -27,8 +27,9 @@ When updating from upstream CustomRPC, re-compare `createActivity` / `RpcSetting
 2. Enable **MultiCustomRPC** in plugin settings (leave bundled **CustomRPC** off unless you intentionally want both).
 3. Turn on Discord **Activity Sharing** if prompted.
 4. Add profiles via **+ Add RPC**, or **Import from CustomRPC** to snapshot the bundled CustomRPC settings into a new disabled profile (non-destructive; re-import adds another profile).
-5. Enable individual profiles and the master **Enable Presence** switch.
-6. Confirm visibility from **another account** (own buttons are hidden by Discord).
+5. In the Add/Edit modal, the live **Preview** uses the activity builder only (does not publish).
+6. Enable individual profiles and the master **Enable Presence** switch.
+7. Confirm buttons on your own profile (same unhide patch as CustomRPC) and/or from another account.
 
 ## Constraints (do not over-claim)
 

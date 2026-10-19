@@ -5,12 +5,13 @@
  */
 
 import { Divider } from "@components/Divider";
-import { Heading } from "@components/Heading";
+import { Heading, HeadingSecondary } from "@components/Heading";
 import { classNameFactory } from "@utils/css";
 import { RenderModalProps } from "@vencord/discord-types";
 import { ActivityType } from "@vencord/discord-types/enums";
 import { Modal, openModal, Select, Text, TextInput, useState } from "@webpack/common";
 
+import { ActivityPreview } from "./ActivityPreview";
 import {
     cloneProfile,
     isAppIdValid,
@@ -122,6 +123,13 @@ function ProfileEditorModal({ initial, modalProps, isNew }: {
             notice={validationError ? { message: validationError, type: "critical" } : undefined}
         >
             <div className={cl("modal")}>
+                <section className={cl("section")}>
+                    <HeadingSecondary>Preview</HeadingSecondary>
+                    <ActivityPreview profile={draft} />
+                </section>
+
+                <Divider />
+
                 <Field
                     label="Profile Name"
                     value={draft.name}
