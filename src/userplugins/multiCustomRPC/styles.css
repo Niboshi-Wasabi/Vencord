@@ -39,6 +39,20 @@
     flex-wrap: wrap;
 }
 
+.vc-multiCustomRPC-preview {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5em;
+}
+
+.vc-multiCustomRPC-preview-hint {
+    color: var(--text-muted);
+}
+
+.vc-multiCustomRPC-preview-frame {
+    min-height: 2em;
+}
+
 .vc-multiCustomRPC-modal {
     display: flex;
     flex-direction: column;

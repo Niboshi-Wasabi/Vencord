@@ -61,6 +61,18 @@ export default definePlugin({
     requiresRestart: false,
     settings,
 
+    // Same optional UX as CustomRPC: Discord hides own-profile RPC buttons otherwise.
+    // CustomRPC と同様、自分のプロフィールでも RPC ボタンを見えるようにする
+    patches: [
+        {
+            find: ".USER_PROFILE_ACTIVITY_BUTTONS),",
+            replacement: {
+                match: /.getId\(\)===\i.id/,
+                replace: "$& && false"
+            }
+        }
+    ],
+
     toolboxActions() {
         const { enablePresence } = settings.use(["enablePresence"]);
 
@@ -157,7 +169,8 @@ export default definePlugin({
                     not Discord's process start. Custom timestamps are stored per profile and are not rewritten on reconnect.
                 </Paragraph>
                 <Paragraph>
-                    You can't see your own buttons on your profile; verify buttons from another account.
+                    Discord normally hides Rich Presence buttons on your own profile. This plugin includes the same
+                    workaround as CustomRPC so you can see them; others can see them either way.
                 </Paragraph>
             </Flex>
         );
