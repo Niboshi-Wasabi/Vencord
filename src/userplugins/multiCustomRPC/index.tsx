@@ -161,8 +161,9 @@ export default definePlugin({
                     This plugin is independent from CustomRPC. Use "Import from CustomRPC" in the profile list to copy
                     the current CustomRPC settings into a new disabled profile (CustomRPC data is not modified).
                     Turn CustomRPC off if you do not want duplicate activities.
-                    Simultaneous multi-profile display for other users is not guaranteed by Discord; prefer a distinct
-                    Application ID per profile if activities collapse together.
+                    Discord's presence layer keeps at most one Playing activity; enable at most one Playing profile, or
+                    mix types (Playing / Watching / Listening / Competing). Prefer a distinct Application ID per profile
+                    when the same type and name would otherwise collapse together.
                 </Paragraph>
                 <Paragraph>
                     Timestamp mode labels match CustomRPC. "Since discord open" uses Activity generation time (same as CustomRPC),

@@ -15,7 +15,7 @@ import {
     publishContentKey,
     settings,
 } from "./settings";
-import { RpcProfile, socketIdForProfile } from "./types";
+import { profileIdFromSocketId, RpcProfile, socketIdForProfile } from "./types";
 
 const logger = new Logger("MultiCustomRPC");
 
@@ -23,11 +23,19 @@ type ErrorListener = () => void;
 
 let running = false;
 let epoch = 0;
+/** Serialize publishes so Discord presence updates are not raced. */
+let publishQueue: Promise<void> = Promise.resolve();
 const revisions = new Map<string, number>();
 const ownedSockets = new Set<string>();
 const lastPublishedContent = new Map<string, string>();
+/** Fingerprint of which profile ids are currently intended to be live. */
+let lastEnabledFingerprint = "";
 const runtimeErrors = new Map<string, string>();
 const errorListeners = new Set<ErrorListener>();
+
+function enabledFingerprint(profiles: RpcProfile[]): string {
+    return profiles.filter(p => p.enabled).map(p => p.id).sort().join("\0");
+}
 
 function bumpRevision(profileId: string): number {
     const next = (revisions.get(profileId) ?? 0) + 1;
@@ -167,7 +175,20 @@ export function reconcileProfiles(options?: { force?: boolean; }) {
         revisions.clear();
         clearAllOwnedSockets();
         lastPublishedContent.clear();
+        // Reset so the next enable treats the set as changed and republishes.
+        // 次回有効化時に集合変化として再公開させる
+        lastEnabledFingerprint = "";
         return;
+    }
+
+    const enabledNow = enabledFingerprint(analysis.publishable);
+    // When the enabled set changes, re-send survivors. Discord collapses multiple PLAYING
+    // activities to one; skipping republish after a disable can leave presence empty.
+    // 有効集合が変わったら再送する。PLAYING 畳み込み後に空になるのを防ぐ。
+    const enabledSetChanged = enabledNow !== lastEnabledFingerprint;
+    lastEnabledFingerprint = enabledNow;
+    if (enabledSetChanged) {
+        lastPublishedContent.clear();
     }
 
     const tasks: Promise<void>[] = [];
@@ -179,20 +200,25 @@ export function reconcileProfiles(options?: { force?: boolean; }) {
 
         if (!profile.enabled) {
             // Only clear when we previously published; avoid null-spamming every reconcile.
-            if (lastPublishedContent.has(profile.id)) {
+            // After an enabled-set change lastPublished was cleared, so also clear owned sockets
+            // that may still be live from the previous set.
+            if (lastPublishedContent.has(profile.id) || (enabledSetChanged && ownedSockets.has(socketId))) {
                 removeActivity(profile.id);
             }
             continue;
         }
 
         const contentKey = publishContentKey(profile);
-        if (lastPublishedContent.get(profile.id) === contentKey) {
+        if (!enabledSetChanged && lastPublishedContent.get(profile.id) === contentKey) {
             continue;
         }
 
         const revision = bumpRevision(profile.id);
         const snapshot = cloneProfile(profile);
-        tasks.push(publishProfile(snapshot, epoch, revision));
+        // Queue serially: each publish awaits the previous (including asset fetch).
+        const run = () => publishProfile(snapshot, epoch, revision);
+        publishQueue = publishQueue.then(run, run);
+        tasks.push(publishQueue);
     }
 
     // Remove sockets for profiles that disappeared or are no longer publishable
@@ -205,9 +231,8 @@ export function reconcileProfiles(options?: { force?: boolean; }) {
     // Clear owned sockets whose profile id is gone from settings entirely
     const allIds = new Set(analysis.profiles.map(p => p.id).filter(Boolean));
     for (const socketId of [...ownedSockets]) {
-        const prefix = "MultiCustomRPC:";
-        if (!socketId.startsWith(prefix)) continue;
-        const id = socketId.slice(prefix.length);
+        const id = profileIdFromSocketId(socketId);
+        if (id == null) continue;
         if (!allIds.has(id) && !desiredIds.has(id)) {
             removeSocket(socketId);
             lastPublishedContent.delete(id);
@@ -228,6 +253,7 @@ export function startManager() {
     epoch++;
     revisions.clear();
     lastPublishedContent.clear();
+    lastEnabledFingerprint = "";
     runtimeErrors.clear();
     notifyErrors();
 
@@ -249,6 +275,7 @@ export function stopManager() {
     epoch++;
     revisions.clear();
     lastPublishedContent.clear();
+    lastEnabledFingerprint = "";
     runtimeErrors.clear();
     notifyErrors();
     clearAllOwnedSockets();

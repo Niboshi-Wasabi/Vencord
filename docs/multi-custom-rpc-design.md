@@ -1,9 +1,12 @@
 # MultiCustomRPC 設計・調査報告
 
 調査対象: ローカル Vencord `32c90633`（`package.json`: 1.15.11）、ブランチ `feat/multi-custom-rpc`。
-本書は設計成果物であり、プラグイン実装・PoCの実行・Discordへの登録は行っていない。
 
-**判断: 独立 userplugin を推奨する。ただし、異なる socketId の2件が他ユーザーのプロフィールにも同時表示され、片方だけ解除できることをPoCで確認するまで、本実装へ進まない。**
+> **実装ステータス（2026-10）:** `src/userplugins/multiCustomRPC` に本実装あり。公開本体は [Niboshi-Wasabi/multiCustomRPC](https://github.com/Niboshi-Wasabi/multiCustomRPC)。  
+> Discord クライアントは **Playing を最大1件**に畳む（Cursor/VSCord やゲームと競合）。詳細は [multi-custom-rpc-cursor-collapse-report.md](./multi-custom-rpc-cursor-collapse-report.md)。方針論点は [multi-custom-rpc-open-questions.md](./multi-custom-rpc-open-questions.md)。  
+> 下記の「PoC Gate まで本実装へ進まない」は初期判断の記録であり、実装は Gate 正式記録なしで先行している。
+
+**初期判断（記録）: 独立 userplugin を推奨する。ただし、異なる socketId の2件が他ユーザーのプロフィールにも同時表示され、片方だけ解除できることをPoCで確認するまで、本実装へ進まない、としていた。**
 
 ## 1. Existing Implementation Summary
 
