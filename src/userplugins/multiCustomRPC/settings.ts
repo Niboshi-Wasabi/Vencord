@@ -58,8 +58,13 @@ export const maxLength128 = makeLengthValidator(128);
 export const maxLength128Required = makeLengthValidator(128, true);
 export const maxLength31 = makeLengthValidator(31);
 
-/** Same rule as CustomRPC RpcSettings.isAppIdValid. */
+/**
+ * Application ID is optional (CustomRPC uses `appID || "0"` at publish time).
+ * When set, it must be a snowflake. Empty must not block Save / enable.
+ * Application ID は任意（公開時は `appID || "0"`）。空は Save / 有効化を止めない。
+ */
 export function isAppIdValid(value: string): true | FieldError {
+    if (!value) return true;
     if (!/^\d{16,21}$/.test(value)) return "Must be a valid Discord ID.";
     return true;
 }
@@ -382,7 +387,7 @@ export function duplicateProfile(id: string) {
 
     const copy = cloneProfile(src);
     copy.id = crypto.randomUUID();
-    copy.name = `${src.name} コピー`;
+    copy.name = `${src.name} (copy)`;
     copy.enabled = false;
     setProfiles([...getProfilesPlain(), copy]);
 }

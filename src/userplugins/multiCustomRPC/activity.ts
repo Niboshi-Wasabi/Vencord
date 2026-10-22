@@ -41,6 +41,10 @@ export async function buildActivity(
         name: profile.appName,
         type: profile.type ?? ActivityType.PLAYING,
         flags: ActivityFlags.INSTANCE,
+        // Discord SelfPresenceStore sorts by created_at when picking among PLAYING activities.
+        // Without this, the first socket often wins and later PLAYING profiles never surface.
+        // Discord は PLAYING が複数あると1件に畳む。created_at が無いと先勝ちになりやすい。
+        created_at: now(),
     };
 
     if (profile.details) activity.details = profile.details;

@@ -32,6 +32,21 @@ import { RpcProfile } from "./types";
 
 const cl = classNameFactory("vc-multiCustomRPC-");
 
+function PlayingCollisionWarning({ publishable }: { publishable: RpcProfile[]; }) {
+    const playingEnabled = publishable.filter(p => p.enabled && p.type === ActivityType.PLAYING);
+    if (playingEnabled.length < 2) return null;
+
+    return (
+        <Card variant="warning" className={Margins.top8}>
+            <Paragraph>
+                {playingEnabled.length} profiles are enabled as Playing. Discord's client keeps only one
+                Playing activity (including Cursor / games / other RPC), so the others will not appear
+                until you change their type or turn them off.
+            </Paragraph>
+        </Card>
+    );
+}
+
 const ACTIVITY_TYPE_LABEL: Record<number, string> = {
     [ActivityType.PLAYING]: "Playing",
     [ActivityType.STREAMING]: "Streaming",
@@ -90,9 +105,12 @@ export function ProfileList() {
                 <BaseText size="md" weight="semibold">Custom RPC Profiles</BaseText>
                 <Paragraph className={Margins.top8}>
                     Each enabled profile uses its own socket (<Text variant="text-sm/normal">MultiCustomRPC:&lt;id&gt;</Text>).
-                    Simultaneous display on other users' profiles depends on Discord; use a distinct Application ID per profile if one ID collapses them.
+                    Discord keeps at most one Playing activity in presence. To show several at once, use different Activity Types
+                    (for example Playing + Watching + Listening) and preferably distinct Application IDs.
                     Display order is not guaranteed.
                 </Paragraph>
+
+                <PlayingCollisionWarning publishable={analysis.publishable} />
 
                 <Flex flexDirection="column" gap="0.5em" className={Margins.top8}>
                     {analysis.profiles.map((profile, index) => {

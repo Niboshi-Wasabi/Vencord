@@ -62,6 +62,15 @@ export interface BuildActivityContext {
     resolveAsset?: (appID: string, key: string) => Promise<string>;
 }
 
+/** Prefix for all MultiCustomRPC local activity sockets. Keep in sync with cleanup parsers. */
+export const SOCKET_ID_PREFIX = "MultiCustomRPC:";
+
 export function socketIdForProfile(profileId: string): string {
-    return `MultiCustomRPC:${profileId}`;
+    return `${SOCKET_ID_PREFIX}${profileId}`;
+}
+
+/** Inverse of socketIdForProfile; returns null when the socket is not ours. */
+export function profileIdFromSocketId(socketId: string): string | null {
+    if (!socketId.startsWith(SOCKET_ID_PREFIX)) return null;
+    return socketId.slice(SOCKET_ID_PREFIX.length) || null;
 }
