@@ -16,7 +16,7 @@ import { Paragraph } from "@components/Paragraph";
 import { Switch } from "@components/Switch";
 import { classNameFactory } from "@utils/css";
 import { ActivityType } from "@vencord/discord-types/enums";
-import { ConfirmModal, openModal, showToast, Text, useEffect, useState } from "@webpack/common";
+import { ConfirmModal, openModal, showToast, useEffect, useState } from "@webpack/common";
 
 import { getRuntimeErrors, subscribeRuntimeErrors } from "./activityManager";
 import { openProfileEditorModal } from "./ProfileEditorModal";
@@ -104,7 +104,7 @@ export function ProfileList() {
             <section className={Margins.top8}>
                 <BaseText size="md" weight="semibold">Custom RPC Profiles</BaseText>
                 <Paragraph className={Margins.top8}>
-                    Each enabled profile uses its own socket (<Text variant="text-sm/normal">MultiCustomRPC:&lt;id&gt;</Text>).
+                    Each enabled profile uses its own socket (<code>MultiCustomRPC:&lt;id&gt;</code>).
                     Discord keeps at most one Playing activity in presence. To show several at once, use different Activity Types
                     (for example Playing + Watching + Listening) and preferably distinct Application IDs.
                     Display order is not guaranteed.
@@ -133,9 +133,9 @@ export function ProfileList() {
                                         {profile.name || "(unnamed)"}
                                         {profile.appName ? ` / ${profile.appName}` : ""}
                                     </Paragraph>
-                                    <Text className={cl("type")} variant="text-sm/normal">{typeLabel}</Text>
+                                    <Paragraph className={cl("type")}>{typeLabel}</Paragraph>
                                     {error && (
-                                        <Text className={cl("error")} variant="text-sm/normal">{error}</Text>
+                                        <Paragraph className={cl("error")}>{error}</Paragraph>
                                     )}
                                 </div>
                                 <div className={cl("card-actions")}>

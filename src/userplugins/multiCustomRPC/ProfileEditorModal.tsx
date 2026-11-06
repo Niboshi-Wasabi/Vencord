@@ -5,11 +5,12 @@
  */
 
 import { Divider } from "@components/Divider";
-import { Heading, HeadingSecondary } from "@components/Heading";
+import { Heading } from "@components/Heading";
+import { Paragraph } from "@components/Paragraph";
 import { classNameFactory } from "@utils/css";
 import { RenderModalProps } from "@vencord/discord-types";
 import { ActivityType } from "@vencord/discord-types/enums";
-import { Modal, openModal, Select, Text, TextInput, useState } from "@webpack/common";
+import { Modal, openModal, Select, TextInput, useState } from "@webpack/common";
 
 import { ActivityPreview } from "./ActivityPreview";
 import {
@@ -56,7 +57,7 @@ function Field({ label, value, disabled, error, onChange }: FieldProps) {
                 onChange={onChange}
                 disabled={disabled}
             />
-            {error && <Text className={cl("field-error")} variant="text-sm/normal">{error}</Text>}
+            {error && <Paragraph className={cl("field-error")}>{error}</Paragraph>}
         </div>
     );
 }
@@ -124,7 +125,7 @@ function ProfileEditorModal({ initial, modalProps, isNew }: {
         >
             <div className={cl("modal")}>
                 <section className={cl("section")}>
-                    <HeadingSecondary>Preview</HeadingSecondary>
+                    <Heading tag="h5">Preview</Heading>
                     <ActivityPreview profile={draft} />
                 </section>
 
